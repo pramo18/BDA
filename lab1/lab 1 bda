@@ -1,0 +1,246 @@
+
+msce@bmsce-Precision-T1700:~$ cd cassandra/apache-cassandra-3.11.0/
+bmsce@bmsce-Precision-T1700:~/cassandra/apache-cassandra-3.11.0$ cd bin
+bmsce@bmsce-Precision-T1700:~/cassandra/apache-cassandra-3.11.0/bin$ ./cqlsh
+Connected to Test Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 3.11.4 | CQL spec 3.4.4 | Native protocol v4]
+Use HELP for help.
+cqlsh> DESCRIBE KEYSPACES;
+
+students  system_schema  system_auth  system  system_distributed  system_traces
+
+cqlsh> CREATE KEYSPACE students1 WITH REPLICATION=
+   ... { 'class':'SimpleStrategy',
+   ...    'replication_factor':1};
+cqlsh> DESCRIBE KEYSPACES
+
+students       system_auth  system_distributed  system_traces
+system_schema  system       students1         
+
+cqlsh> SELECT *FROM system.schema_keyspaces;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="unconfigured table schema_keyspaces"
+cqlsh> SELECT * FROM system.schema_keyspaces;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="unconfigured table schema_keyspaces"
+cqlsh> SELECT * FROM system_schema_keyspaces;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="No keyspace has been specified. USE a keyspace, or explicitly specify keyspace.tablename"
+cqlsh> SELECT * FROM system_schema.keyspaces;
+
+ keyspace_name      | durable_writes | replication
+--------------------+----------------+-------------------------------------------------------------------------------------
+        system_auth |           True | {'class': 'org.apache.cassandra.locator.SimpleStrategy', 'replication_factor': '1'}
+      system_schema |           True |                             {'class': 'org.apache.cassandra.locator.LocalStrategy'}
+          students1 |           True | {'class': 'org.apache.cassandra.locator.SimpleStrategy', 'replication_factor': '1'}
+ system_distributed |           True | {'class': 'org.apache.cassandra.locator.SimpleStrategy', 'replication_factor': '3'}
+             system |           True |                             {'class': 'org.apache.cassandra.locator.LocalStrategy'}
+      system_traces |           True | {'class': 'org.apache.cassandra.locator.SimpleStrategy', 'replication_factor': '2'}
+           students |           True | {'class': 'org.apache.cassandra.locator.SimpleStrategy', 'replication_factor': '1'}
+
+(7 rows)
+cqlsh> USE students1;
+cqlsh:students1> create table Sudent_info(
+             ... RollNo int PRIMARY KEY,
+             ... StudName text,
+             ... DateofJoining timestamp,
+             ... LastExamPercent double);
+cqlsh:students1> DESCRIBE TABLES
+
+sudent_info
+
+cqlsh:students1> DESCRIBE TABLE student_info
+
+Column family 'student_info' not found
+cqlsh:students1> DESCRIBE TABLE Student_info
+
+Column family 'student_info' not found
+cqlsh:students1> DESCRIBE TABLE Student_info;
+
+Column family 'student_info' not found
+cqlsh:students1> DESCRIBE TABLE student_info;
+
+Column family 'student_info' not found
+cqlsh:students1> DESCRIBE TABLE Sudent_info;
+
+CREATE TABLE students1.sudent_info (
+    rollno int PRIMARY KEY,
+    dateofjoining timestamp,
+    lastexampercent double,
+    studname text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = {'keys': 'ALL', 'rows_per_partition': 'NONE'}
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold': '32', 'min_threshold': '4'}
+    AND compression = {'chunk_length_in_kb': '64', 'class': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND crc_check_chance = 1.0
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99PERCENTILE';
+
+cqlsh:students1> create table Student_info(
+             ... RollNo int PRIMARY KEY,
+             ... StudName text,
+             ... DateofJoining timestamp,
+             ... LastExamPercent double);
+cqlsh:students1> BEGIN BATCH
+             ... INSERT INTO
+             ... student_info(RollNo,StudName,DateofJoining,LastExamPercent)
+             ... VALUES (1,'Michael Storm','2012-03-29', 69.6)
+             ... INSERT INTO student_info
+             ... (RollNo,StudName,DateofJoining,LastExamPercent) VALUES
+             ... (2,'Stephen Fox','2013-02-27', 72.5)
+             ... APPLY BATCH;
+cqlsh:students1> SELECT * FROM Student_Info;
+
+ rollno | dateofjoining                   | lastexampercent | studname
+--------+---------------------------------+-----------------+---------------
+      1 | 2012-03-28 18:30:00.000000+0000 |            69.6 | Michael Storm
+      2 | 2013-02-26 18:30:00.000000+0000 |            72.5 |   Stephen Fox
+
+(2 rows)
+cqlsh:students1> UPDATE Student_Info SET StudName = 'David Sheen' WHERE RollNo = 2;
+cqlsh:students1> SELECT * FROM Student_Info;
+
+ rollno | dateofjoining                   | lastexampercent | studname
+--------+---------------------------------+-----------------+---------------
+      1 | 2012-03-28 18:30:00.000000+0000 |            69.6 | Michael Storm
+      2 | 2013-02-26 18:30:00.000000+0000 |            72.5 |   David Sheen
+
+(2 rows)
+cqlsh:students1> SELECT * FROM Student_Info;
+
+ rollno | dateofjoining                   | lastexampercent | studname
+--------+---------------------------------+-----------------+---------------
+      1 | 2012-03-28 18:30:00.000000+0000 |            69.6 | Michael Storm
+      2 | 2013-02-26 18:30:00.000000+0000 |            72.5 |   David Sheen
+
+(2 rows)
+cqlsh:students1> SELECT * FROM Student_Info;WHERE RollNo in(1,2,3)
+             ... SELECT  FROM Student_Info;WHERE RollNo in(1,2,3)
+             ... SELECT  FROM Student_Info WHERE RollNo in(1,2,3)
+             ... SELECT  FROM Student_Info WHERE RollNo in(1,2,3);
+
+ rollno | dateofjoining                   | lastexampercent | studname
+--------+---------------------------------+-----------------+---------------
+      1 | 2012-03-28 18:30:00.000000+0000 |            69.6 | Michael Storm
+      2 | 2013-02-26 18:30:00.000000+0000 |            72.5 |   David Sheen
+
+(2 rows)
+SyntaxException: line 1:0 no viable alternative at input 'WHERE' ([WHERE]...)
+SyntaxException: line 1:0 no viable alternative at input 'WHERE' ([WHERE]...)
+cqlsh:students1> SELECT  FROM Student_Info WHERE RollNo in(1,2,3);
+SyntaxException: line 1:8 no viable alternative at input 'FROM' (SELECT  [FROM]...)
+cqlsh:students1> SELECT * FROM Student_Info WHERE RollNo in(1,2,3);
+
+ rollno | dateofjoining                   | lastexampercent | studname
+--------+---------------------------------+-----------------+---------------
+      1 | 2012-03-28 18:30:00.000000+0000 |            69.6 | Michael Storm
+      2 | 2013-02-26 18:30:00.000000+0000 |            72.5 |   David Sheen
+
+(2 rows)
+cqlsh:students1> SELECT * FROM Student_Info WHERE studname='david sheen';
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Cannot execute this query as it might involve data filtering and thus may have unpredictable performance. If you want to execute this query despite the performance unpredictability, use ALLOW FILTERING"
+cqlsh:students1> SELECT * FROM Student_Info WHERE studname='David Sheen';
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Cannot execute this query as it might involve data filtering and thus may have unpredictable performance. If you want to execute this query despite the performance unpredictability, use ALLOW FILTERING"
+cqlsh:students1> 
+cqlsh:students1> CREATE INDEX ON Student_Info(studname);
+cqlsh:students1> SELECT * FROM Student_Info WHERE studname='David Sheen';
+
+ rollno | dateofjoining                   | lastexampercent | studname
+--------+---------------------------------+-----------------+-------------
+      2 | 2013-02-26 18:30:00.000000+0000 |            72.5 | David Sheen
+
+(1 rows)
+cqlsh:students1> SELECT * FROM Student_Info WHERE rollno=2;
+
+ rollno | dateofjoining                   | lastexampercent | studname
+--------+---------------------------------+-----------------+-------------
+      2 | 2013-02-26 18:30:00.000000+0000 |            72.5 | David Sheen
+
+(1 rows)
+cqlsh:students1> SELECT * FROM Student_Info WHERE lastexampercent=72.5;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Cannot execute this query as it might involve data filtering and thus may have unpredictable performance. If you want to execute this query despite the performance unpredictability, use ALLOW FILTERING"
+cqlsh:students1> CREATE INDEX ON Student_Info(lastexampercent);
+cqlsh:students1> SELECT * FROM Student_Info WHERE lastexampercent=72.5;
+
+ rollno | dateofjoining                   | lastexampercent | studname
+--------+---------------------------------+-----------------+-------------
+      2 | 2013-02-26 18:30:00.000000+0000 |            72.5 | David Sheen
+
+(1 rows)
+cqlsh:students1> SELECT RollNo, LastExamPercent
+             ... FROM Student_info LIMIT 2;
+
+ rollno | lastexampercent
+--------+-----------------
+      1 |            69.6
+      2 |            72.5
+
+(2 rows)
+cqlsh:students1> SELECT RollNo, LastExamPercent FROM Student_info LIMIT 1;
+
+ rollno | lastexampercent
+--------+-----------------
+      1 |            69.6
+
+(1 rows)
+cqlsh:students1> SELECT RollNo, StudName AS “Name”
+Invalid syntax at line 1, char 28
+  SELECT RollNo, StudName AS “Name”
+                             ^
+cqlsh:students1> SELECT RollNo, StudName AS “Name”
+Invalid syntax at line 1, char 28
+  SELECT RollNo, StudName AS “Name”
+                             ^
+cqlsh:students1> SELECT RollNo, StudName AS “Name” FROM Student_Info;
+Invalid syntax at line 1, char 28
+  SELECT RollNo, StudName AS “Name” FROM Student_Info;
+                             ^
+cqlsh:students1> SELECT RollNo, StudName AS “Name”
+Invalid syntax at line 1, char 28
+  SELECT RollNo, StudName AS “Name”
+                             ^
+cqlsh:students1> SELECT RollNo, StudName AS 'Name' FROM Student_Info;
+SyntaxException: line 1:27 no viable alternative at input 'Name' (SELECT RollNo, StudName AS ['Nam]...)
+cqlsh:students1> SELECT RollNo, StudName AS Name FROM Student_Info;
+
+ rollno | name
+--------+---------------
+      1 | Michael Storm
+      2 |   David Sheen
+
+(2 rows)
+cqlsh:students1> UPDATE Student_Info
+             ... SET StudName=”Samaira”, LastExamPercent=85.7
+Invalid syntax at line 2, char 14
+  SET StudName=”Samaira”, LastExamPercent=85.7
+               ^
+cqlsh:students1> UPDATE Student_Info SET StudName='Samaira', LastExamPercent=85.7 WHERE RollNo=2;
+cqlsh:students1> SELECT * FROM Student_Info WHERE RollNo=2;
+
+ rollno | dateofjoining                   | lastexampercent | studname
+--------+---------------------------------+-----------------+----------
+      2 | 2013-02-26 18:30:00.000000+0000 |            85.7 |  Samaira
+
+(1 rows)
+cqlsh:students1> DELETE LastExamPercent FROM Student_Info WHERE RollNo=2;
+cqlsh:students1> SELECT * FROM Student_Info WHERE RollNo=2;
+
+ rollno | dateofjoining                   | lastexampercent | studname
+--------+---------------------------------+-----------------+----------
+      2 | 2013-02-26 18:30:00.000000+0000 |            null |  Samaira
+
+(1 rows)
+cqlsh:students1> DELETE FROM Student_Info
+             ... WHERE RollNo=2;
+cqlsh:students1> SELECT * FROM Student_Info WHERE RollNo=2;
+
+ rollno | dateofjoining | lastexampercent | studname
+--------+---------------+-----------------+----------
+
+(0 rows)
+cqlsh:students1> 
+
