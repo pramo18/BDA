@@ -1,0 +1,99 @@
+msce@bmsce-Precision-T1700:~$ cd cassandra/apache-cassandra-3.11.0/
+bmsce@bmsce-Precision-T1700:~/cassandra/apache-cassandra-3.11.0$ cd bin
+bmsce@bmsce-Precision-T1700:~/cassandra/apache-cassandra-3.11.0/bin$ ./cqlsh
+Connected to Test Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 3.11.4 | CQL spec 3.4.4 | Native protocol v4]
+Use HELP for help.
+cqlsh> CREATE KEYSPACE employee WITH REPLICATION={'class':'SimpleStrategy',
+   ... 'replication_factor':1};
+cqlsh> DESCRIBE KEYSPACES;
+
+students       system_auth  newstudents         employee     
+system_schema  system       system_distributed  system_traces
+
+cqlsh> USE employee
+   ... USE employee;
+Improper USE command.
+cqlsh>  USE employee;
+qlsh:employee> create table employee_info(
+            ... emp_id int PRIMARY KEY,
+            ... emp_name text,
+            ... designation text,
+            ... date_of_joining timestamp,
+            ... salary double,
+            ... dept_name text);
+cqlsh:employee> DESCRIBE TABLES
+
+employee_info
+
+qlsh:employee> BEGIN BATCH
+            ... INSERT INTO
+            ... employee_info(emp_id,emp_name,designation,date_of_joining,salary,dept_name)
+            ... VALUES(1,'MICHAEL','MANAGER','2021-03-29',50000,'SOFTWARE')
+            ... INSERT INTO
+            ... employee_info(emp_id,emp_name,designation,date_of_joining,salary,dept_name)
+            ... VALUES(2,'JOHN','ASSISTANT','2021-04-29',20000,'ACCOUNTS')
+            ... INSERT INTO
+            ... employee_info(emp_id,emp_name,designation,date_of_joining,salary,dept_name)
+            ... VALUES(3,'STEPHEN','DIRECTOR','2021-04-30',100000,'EDUCATION')
+            ... APPLY BATCH;
+cqlsh:employee> SELECT * FROM employye_info;
+cqlsh:employee> SELECT * FROM employee_info;
+
+ emp_id | date_of_joining                 | dept_name | designation | emp_name | salary
+--------+---------------------------------+-----------+-------------+----------+--------
+      1 | 2021-03-28 18:30:00.000000+0000 |  SOFTWARE |     MANAGER |  MICHAEL |  50000
+      2 | 2021-04-28 18:30:00.000000+0000 |  ACCOUNTS |   ASSISTANT |     JOHN |  20000
+      3 | 2021-04-29 18:30:00.000000+0000 | EDUCATION |    DIRECTOR |  STEPHEN |  1e+05
+
+qlsh:employee> UPDATE employee_info SET emp_name='ROCK',dept_name='BUSINESS' WHERE emp_id=2;
+cqlsh:employee> SELECT * FROM employee_info;
+
+ emp_id | date_of_joining                 | dept_name | designation | emp_name | salary
+--------+---------------------------------+-----------+-------------+----------+--------
+      1 | 2021-03-28 18:30:00.000000+0000 |  SOFTWARE |     MANAGER |  MICHAEL |  50000
+      2 | 2021-04-28 18:30:00.000000+0000 |  BUSINESS |   ASSISTANT |     ROCK |  20000
+      3 | 2021-04-29 18:30:00.000000+0000 | EDUCATION |    DIRECTOR |  STEPHEN |  1e+05
+cqlsh:employee> UPDATE employee_info SET salary=80000 WHERE emp_id=3;
+cqlsh:employee> SELECT * FROM employee_info;
+
+ emp_id | date_of_joining                 | dept_name | designation | emp_name | salary
+--------+---------------------------------+-----------+-------------+----------+--------
+      1 | 2021-03-28 18:30:00.000000+0000 |  SOFTWARE |     MANAGER |  MICHAEL |  50000
+      2 | 2021-04-28 18:30:00.000000+0000 |  BUSINESS |   ASSISTANT |     ROCK |  20000
+      3 | 2021-04-29 18:30:00.000000+0000 | EDUCATION |    DIRECTOR |  STEPHEN |  80000
+cqlsh:employee> SELECT * FROM employee_info;
+
+ emp_id | date_of_joining                 | dept_name | designation | emp_name | project | salary
+--------+---------------------------------+-----------+-------------+----------+---------+--------
+      1 | 2021-03-28 18:30:00.000000+0000 |  SOFTWARE |     MANAGER |  MICHAEL |    null |  50000
+      2 | 2021-04-28 18:30:00.000000+0000 |  BUSINESS |   ASSISTANT |     ROCK |    null |  20000
+      3 | 2021-04-29 18:30:00.000000+0000 | EDUCATION |    DIRECTOR |  STEPHEN |    null |  80000
+cqlsh:employee> UPDATE employee_info SET project='data science' where emp_id IN(1,2,3);
+cqlsh:employee> SELECT * FROM employee_info;
+
+ emp_id | date_of_joining                 | dept_name | designation | emp_name | project      | salary
+--------+---------------------------------+-----------+-------------+----------+--------------+--------
+      1 | 2021-03-28 18:30:00.000000+0000 |  SOFTWARE |     MANAGER |  MICHAEL | data science |  50000
+      2 | 2021-04-28 18:30:00.000000+0000 |  BUSINESS |   ASSISTANT |     ROCK | data science |  20000
+      3 | 2021-04-29 18:30:00.000000+0000 | EDUCATION |    DIRECTOR |  STEPHEN | data science |  80000
+
+(3 rows)
+cqlsh:employee> SELECT TTL(emp_name)
+            ... FROM employee_info
+            ... WHERE emp_id=2;
+
+ ttl(emp_name)
+---------------
+          null
+
+(1 rows)
+cqlsh:employee> UPDATE employee_info
+            ... USING TTL 300
+            ... SET salary=90000
+            ... WHERE emp_id=3;
+cqlsh:employee> SELECT TTL(salary) FROM employee_info WHERE emp_id=3;
+
+ ttl(salary)
+-------------
+         276
