@@ -1,0 +1,10 @@
+cqlsh:library> CREATE TABLE library_info
+           ... (counter_value counter,
+           ... stud_name text,
+           ... stud_id int,
+           ... book_name text,
+           ... book_id int,
+           ... date_of_issue timestamp,
+           ... PRIMARY KEY(stud_name,stud_id,book_name,book_id,date_of_issue)
+           ... );
+cqlsh:library> 
