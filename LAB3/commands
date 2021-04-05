@@ -1,0 +1,123 @@
+show dbs
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+> show dbs
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+> use student
+switched to db student
+> db.user.insert({rollno:49,name:"pramod",age:20,contact:9380869745,email:"pramod.cs18@bmsce.ac.in"})
+WriteResult({ "nInserted" : 1 })
+> db.user.insert({rollno:66,name:"hritik",age:20,contact:9380869755,email:"hritik.cs18@bmsce.ac.in"})
+WriteResult({ "nInserted" : 1 })
+ db.user.find().pretty()
+{
+        "_id" : ObjectId("606ae0795826b43f7b13019d"),
+        "rollno" : 49,
+        "name" : "pramod",
+        "age" : 20,
+        "contact" : 9380869745,
+        "email" : "pramod.cs18@bmsce.ac.in"
+}
+{
+        "_id" : ObjectId("606ae0a05826b43f7b13019e"),
+        "rollno" : 66,
+        "name" : "hritik",
+        "age" : 20,
+        "contact" : 9380869755,
+        "email" : "hritik.cs18@bmsce.ac.in"
+}
+> db.user.update({"rollno":66},{$set:{"name":"rohan"}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.student.update({"rollno":66},{$set:{"email":"rohan.cs18@bmsce.ac.in"}})
+WriteResult({ "nMatched" : 0, "nUpserted" : 0, "nModified" : 0 })
+> db.user.find().pretty()
+{
+        "_id" : ObjectId("606ae0795826b43f7b13019d"),
+        "rollno" : 49,
+        "name" : "pramod",
+        "age" : 20,
+        "contact" : 9380869745,
+        "email" : "pramod.cs18@bmsce.ac.in"
+}
+{
+        "_id" : ObjectId("606ae0a05826b43f7b13019e"),
+        "rollno" : 66,
+        "name" : "rohan",
+        "age" : 20,
+        "contact" : 9380869755,
+        "email" : "hritik.cs18@bmsce.ac.in"
+}
+> db.user.update({"rollno":66},{$set:{"email":"rohan.cs18@bmsce.ac.in"}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.user.find().pretty()
+{
+        "_id" : ObjectId("606ae0795826b43f7b13019d"),
+        "rollno" : 49,
+        "name" : "pramod",
+        "age" : 20,
+        "contact" : 9380869745,
+        "email" : "pramod.cs18@bmsce.ac.in"
+}
+{
+        "_id" : ObjectId("606ae0a05826b43f7b13019e"),
+        "rollno" : 66,
+        "name" : "rohan",
+        "age" : 20,
+        "contact" : 9380869755,
+        "email" : "rohan.cs18@bmsce.ac.in"
+}
+> exit
+C:\Program Files\MongoDB\Server\4.0\bin>mongoexport --db=student --collection=user --type=csv --fields=rollno,name,age,contact,email --out=D:\BDA\student.csv
+2021-04-05T15:42:46.424+0530    connected to: localhost
+2021-04-05T15:42:46.428+0530    exported 2 records
+C:\Program Files\MongoDB\Server\4.0\bin>mongo
+MongoDB shell version v4.0.8-rc0
+connecting to: mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("6e552e39-203c-4345-8966-b5fb72ebae59") }
+MongoDB server version: 4.0.8-rc0
+Server has startup warnings:
+2021-04-05T11:53:43.654+0530 I CONTROL  [initandlisten]
+2021-04-05T11:53:43.654+0530 I CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.
+2021-04-05T11:53:43.655+0530 I CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.
+2021-04-05T11:53:43.655+0530 I CONTROL  [initandlisten]
+---
+Enable MongoDB's free cloud-based monitoring service, which will then receive and display
+metrics about your deployment (disk utilization, CPU, operation statistics, etc).
+
+The monitoring data will be available on a MongoDB website with a unique URL accessible to you
+and anyone you share the URL with. MongoDB may use this information to make product
+improvements and to suggest MongoDB products and deployment options to you.
+
+To enable free monitoring, run the following command: db.enableFreeMonitoring()
+To permanently disable this reminder, run the following command: db.disableFreeMonitoring()
+---
+
+>  db.dropDatabase()
+{ "ok" : 1 }
+> db.user.find().pretty()
+C:\Program Files\MongoDB\Server\4.0\bin>mongoimport -d student -c user --type csv --file=D:\BDA\student.csv --headerline
+2021-04-05T15:49:39.136+0530    connected to: localhost
+2021-04-05T15:49:39.140+0530    imported 2 documents
+> db.user.find().pretty()
+> use student
+switched to db student
+> db.user.find().pretty()
+{
+        "_id" : ObjectId("606ae0795826b43f7b13019d"),
+        "rollno" : 49,
+        "name" : "pramod",
+        "age" : 20,
+        "contact" : 9380869745,
+        "email" : "pramod.cs18@bmsce.ac.in"
+}
+{
+        "_id" : ObjectId("606ae0a05826b43f7b13019e"),
+        "rollno" : 66,
+        "name" : "rohan",
+        "age" : 20,
+        "contact" : 9380869755,
+        "email" : "rohan.cs18@bmsce.ac.in"
+}
